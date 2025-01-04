@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Model Animation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r150/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+  <div id="buttons">
+    <button id="playButton1">Transmitting & Receiving</button>
+    <button id="playButton2">Depth & Resolution of D1</button>
+  </div>
+  <div id="container"></div>
+
+  <script>
+    // Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Load GLB file
+    const loader = new THREE.GLTFLoader();
+    let mixer; // For animation
+    loader.load('01BasicIdea.glb', (gltf) => {
+      scene.add(gltf.scene);
+      mixer = new THREE.AnimationMixer(gltf.scene);
+
+      // Load all animations
+      const animations = gltf.animations;
+      const action1 = mixer.clipAction(animations[0]); // Play animation 0:110
+      const action2 = mixer.clipAction(animations[1]); // Play animation 110:140
+
+      // Button Actions
+      document.getElementById('playButton1').addEventListener('click', () => {
+        action1.reset().play();
+      });
+
+      document.getElementById('playButton2').addEventListener('click', () => {
+        action2.reset().play();
+      });
+    });
+
+    camera.position.z = 5;
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      if (mixer) mixer.update(0.01); // Update animation mixer
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
